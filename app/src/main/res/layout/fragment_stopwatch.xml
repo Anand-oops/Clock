@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient">
+
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:padding="20dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="50sp" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/chronometer"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/lap_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1"
+            android:background="@android:color/black"
+            android:contentDescription="Flag"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_flag"
+            android:textAlignment="center"
+            android:visibility="invisible" />
+
+        <ImageButton
+            android:id="@+id/play_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1"
+            android:background="@android:color/black"
+            android:contentDescription="Pause/Play"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_play"
+            android:textAlignment="center" />
+
+        <ImageButton
+            android:id="@+id/stop_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1"
+            android:background="@android:color/black"
+            android:contentDescription="Stop"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_stop"
+            android:textAlignment="center"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lap_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttons"
+        android:layout_margin="16dp"
+        android:paddingEnd="10dp"
+        android:scrollbarThumbVertical="@android:color/white"
+        android:scrollbars="vertical" />
+
+</RelativeLayout>
