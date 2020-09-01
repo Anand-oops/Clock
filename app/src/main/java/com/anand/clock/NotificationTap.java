@@ -2,6 +2,8 @@ package com.anand.clock;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +19,13 @@ public class NotificationTap extends AppCompatActivity {
 
     Button disableAlarmButton;
 
+    public static boolean isCharging(Context context) {
+        Intent intent = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        assert intent != null;
+        int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        return plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,11 +33,11 @@ public class NotificationTap extends AppCompatActivity {
 
         disableAlarmButton = findViewById(R.id.disableAlarm);
 
+
         disableAlarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BatteryManager batteryManager = (BatteryManager) getSystemService(Context.BATTERY_SERVICE);
-                if (batteryManager.isCharging()) {
+                if (isCharging(NotificationTap.this)) {
                     NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     assert manager != null;
                     manager.cancel(1);
@@ -36,14 +45,10 @@ public class NotificationTap extends AppCompatActivity {
                     Toast.makeText(NotificationTap.this, "Alarm Disabled...", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Snackbar.make(view, "Plug in the charger first...", Snackbar.LENGTH_SHORT).setAction("Close", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-
-                        }
-                    }).setActionTextColor(getResources().getColor(android.R.color.holo_blue_dark)).show();
+                    Snackbar.make(view, "Plug in charger...", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
     }
+
 }
