@@ -8,6 +8,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -29,7 +30,9 @@ import java.util.Date;
 public class AddAlarmActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
     private static final String TAG = "AddAlarmActivity";
-    int hour, min;
+    public static final String MY_PREFERENCES = "MyPrefs";
+    SharedPreferences sharedPreferences;
+    int hour, min, reqCode;
     AlarmHelper alarmHelper;
     Calendar setCalendar = Calendar.getInstance();
     private TextView timeText;
@@ -38,12 +41,19 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
     private String time;
 
     @Override
+    protected void onResume() {
+        reqCode = sharedPreferences.getInt("reqCode", 0);
+        super.onResume();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_alarm);
 
+        sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+
         alarmHelper = new AlarmHelper(this);
-        //private boolean sun, mon, tue, web, thu, fri, sat;
         Button setAlarm = findViewById(R.id.setAlarmButton);
         timeText = findViewById(R.id.alarmTimeTV);
         RadioGroup radioGroup = findViewById(R.id.radioGroup);
@@ -155,11 +165,14 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
     }
 
     private void startAlarm() {
-        int reqCode = alarmHelper.getCount();
+        reqCode++;
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("reqCode", reqCode).apply();
         Log.d(TAG, "startAlarm: reqCode" + reqCode);
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
         intent.putExtra("mediaCode", mediaCode);
+        intent.putExtra("reqCode", reqCode);
         if (setCalendar.before(Calendar.getInstance())) {
             setCalendar.add(Calendar.DATE, 1);
         }
@@ -172,6 +185,7 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
         setCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         setCalendar.set(Calendar.MINUTE, minute);
+        setCalendar.set(Calendar.SECOND, 0);
         @SuppressLint("SimpleDateFormat") SimpleDateFormat formatConvert = new SimpleDateFormat("hh:mm a");
         Date dateConvert = setCalendar.getTime();
         time = formatConvert.format(dateConvert);

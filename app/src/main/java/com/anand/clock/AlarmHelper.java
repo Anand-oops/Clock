@@ -55,12 +55,6 @@ public class AlarmHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    @SuppressLint("Recycle")
-    public int getCount() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_NAME, null).getCount();
-    }
-
     public String getAlarmStatus(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
         @SuppressLint("Recycle") Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE " + ALARM_ID + " = " + id + "", null);
@@ -75,4 +69,12 @@ public class AlarmHelper extends SQLiteOpenHelper {
         db.update(TABLE_NAME, values, ALARM_ID + " = ?", new String[]{String.valueOf(id)});
         db.close();
     }
+
+    /*public void updateAlarmTime(String id, String time) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(ALARM_TIME, time);
+        db.update(TABLE_NAME, values, ALARM_ID + " = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }*/
 }

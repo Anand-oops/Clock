@@ -14,12 +14,15 @@ import androidx.core.app.NotificationManagerCompat;
 public class AlarmReceiver extends BroadcastReceiver {
 
     static MediaPlayer player;
-    int mediaCode;
+    int mediaCode, reqCode;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Toast.makeText(context, "Alarm", Toast.LENGTH_SHORT).show();
         mediaCode = intent.getIntExtra("mediaCode", -1);
+        reqCode = intent.getIntExtra("reqCode", reqCode);
+        AlarmHelper alarmHelper = new AlarmHelper(context);
+        alarmHelper.updateAlarmStatus(String.valueOf(reqCode), "false");
         switch (mediaCode) {
             case 1:
                 player = MediaPlayer.create(context, R.raw.cocka_doodle);

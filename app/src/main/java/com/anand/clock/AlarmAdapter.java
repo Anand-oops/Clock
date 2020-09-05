@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,8 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
     private static final String TAG = "AlarmAdapter";
     private ArrayList<AlarmEntryClass> alarmArrayList;
     private Context context;
+    private AlarmHelper alarmHelper;
+    private int hour, min;
 
     public AlarmAdapter(Context context, ArrayList<AlarmEntryClass> list) {
         this.context = context;
@@ -34,6 +37,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
     @NonNull
     @Override
     public AlarmViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        alarmHelper = new AlarmHelper(context);
         return new AlarmViewHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.alarm_adapter_item, parent, false));
     }
@@ -50,11 +54,10 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
             @Override
             public void onClick(View view) {
                 if (holder.statusSwitch.isChecked()) {
-                    AlarmHelper alarmHelper = new AlarmHelper(context);
                     alarmHelper.updateAlarmStatus(alarmArrayList.get(position).getId(), "true");
                     final String time = holder.timeText.getText().toString();
                     Calendar calendar = Calendar.getInstance();
-                    int hour, min;
+
 
                     if (time.contains("AM")) {
                         hour = Integer.parseInt(time.substring(0, 2));
@@ -66,13 +69,40 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
                     calendar.set(Calendar.MINUTE, min);
                     startAlarm(Integer.parseInt(alarmArrayList.get(position).getId()), calendar, Integer.parseInt(alarmArrayList.get(position).getMediaCode()));
                 } else {
-                    AlarmHelper alarmHelper = new AlarmHelper(context);
                     alarmHelper.updateAlarmStatus(alarmArrayList.get(position).getId(), "false");
                     cancelAlarm(Integer.parseInt(alarmArrayList.get(position).getId()));
-                    Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        /*holder.timeText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.statusSwitch.isChecked()) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                    dialog.setMessage("Disable the alarm first if you want to re-schedule it...");
+                    dialog.setIcon(android.R.drawable.stat_notify_error);
+                    dialog.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog1, int which) {
+
+                                }
+                            });
+                    AlertDialog alertDialog = dialog.create();
+                    alertDialog.setCancelable(false);
+                    alertDialog.show();
+                } else {
+                    Calendar calendar = Calendar.getInstance();
+                    hour = calendar.get(Calendar.HOUR_OF_DAY);
+                    min = calendar.get(Calendar.MINUTE);
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(context, AlarmAdapter.this, hour, min,
+                            DateFormat.is24HourFormat(context));
+                    timePickerDialog.show();
+                    Log.i(TAG, "onClick: CHECK");
+                }
+            }
+        });*/
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +122,6 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog1, int which) {
-                                AlarmHelper alarmHelper = new AlarmHelper(context);
                                 if (alarmHelper.getAlarmStatus(alarmArrayList.get(position).getId()).equals("true")) {
                                     cancelAlarm(Integer.parseInt(alarmArrayList.get(position).getId()));
                                 }
@@ -115,11 +144,13 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
         });
     }
 
-    private void startAlarm(int reqCode, Calendar setCalendar, int mediaCode) {
 
+    private void startAlarm(int reqCode, Calendar setCalendar, int mediaCode) {
+        Log.i(TAG, "startAlarm: id " + reqCode);
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("mediaCode", mediaCode);
+        intent.putExtra("reqCode", reqCode);
         if (setCalendar.before(Calendar.getInstance())) {
             setCalendar.add(Calendar.DATE, 1);
         }
@@ -129,16 +160,33 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
     }
 
     private void cancelAlarm(int id) {
+        Log.i(TAG, "cancelAlarm: id " + id);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id, intent, 0);
         alarmManager.cancel(pendingIntent);
+        Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public int getItemCount() {
         return alarmArrayList.size();
     }
+
+    /*@Override
+    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, i);
+        calendar.set(Calendar.MINUTE, i1);
+        calendar.set(Calendar.SECOND, 0);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat formatConvert = new SimpleDateFormat("hh:mm a");
+        Date dateConvert = calendar.getTime();
+        Log.i(TAG, "onTimeSet: " + formatConvert.format(dateConvert));
+        //alarmHelper.updateAlarmTime();
+        //time = formatConvert.format(dateConvert);
+        //timeText.setText(time);
+
+    }*/
 
     public static class AlarmViewHolder extends RecyclerView.ViewHolder {
         TextView timeText;
