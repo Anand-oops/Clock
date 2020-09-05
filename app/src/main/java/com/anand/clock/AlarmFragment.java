@@ -70,7 +70,7 @@ public class AlarmFragment extends Fragment {
             if (cursor.moveToFirst()) {
                 do {
                     AlarmEntryClass alarmEntry = new AlarmEntryClass(cursor.getString(0),
-                            cursor.getString(1), cursor.getString(2));
+                            cursor.getString(1), cursor.getString(2), cursor.getString(3));
                     alarmList.add(alarmEntry);
                 } while (cursor.moveToNext());
             }

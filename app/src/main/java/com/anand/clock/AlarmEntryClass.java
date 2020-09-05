@@ -5,11 +5,13 @@ public class AlarmEntryClass {
     private String id;
     private String time;
     private String status;
+    private String mediaCode;
 
-    public AlarmEntryClass(String id, String time, String status) {
+    public AlarmEntryClass(String id, String time, String status, String mediaCode) {
         this.id = id;
         this.time = time;
         this.status = status;
+        this.mediaCode = mediaCode;
     }
 
     public String getId() {
@@ -22,5 +24,9 @@ public class AlarmEntryClass {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getMediaCode() {
+        return mediaCode;
     }
 }

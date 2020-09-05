@@ -15,6 +15,7 @@ public class AlarmHelper extends SQLiteOpenHelper {
     private static final String ALARM_ID = "id";
     private static final String ALARM_STATUS = "status";
     private static final String ALARM_TIME = "time";
+    public static final String ALARM_MEDIA = "media";
 
     public AlarmHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,7 +24,7 @@ public class AlarmHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String CREATE_TABLE_ALARMS = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ALARM_ID +
-                " INTEGER PRIMARY KEY AUTOINCREMENT, " + ALARM_TIME + " TEXT, " + ALARM_STATUS + " TEXT)";
+                " INTEGER PRIMARY KEY AUTOINCREMENT, " + ALARM_TIME + " TEXT, " + ALARM_STATUS + " TEXT, " + ALARM_MEDIA + " TEXT)";
         sqLiteDatabase.execSQL(CREATE_TABLE_ALARMS);
     }
 
@@ -33,11 +34,12 @@ public class AlarmHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public void addAlarm(String time, String status) {
+    public void addAlarm(String time, String status, String mediaCode) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(ALARM_TIME, time);
         values.put(ALARM_STATUS, status);
+        values.put(ALARM_MEDIA, mediaCode);
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
@@ -66,10 +68,10 @@ public class AlarmHelper extends SQLiteOpenHelper {
         return cursor.getString(2);
     }
 
-    public void updateAlarmStatus(String id) {
+    public void updateAlarmStatus(String id, String status) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(ALARM_STATUS, "false");
+        values.put(ALARM_STATUS, status);
         db.update(TABLE_NAME, values, ALARM_ID + " = ?", new String[]{String.valueOf(id)});
         db.close();
     }

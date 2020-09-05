@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,9 +18,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder> {
 
+    private static final String TAG = "AlarmAdapter";
     private ArrayList<AlarmEntryClass> alarmArrayList;
     private Context context;
 
@@ -45,34 +46,28 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
         } else
             holder.statusSwitch.setChecked(false);
 
-        holder.statusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.statusSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            public void onClick(View view) {
                 if (holder.statusSwitch.isChecked()) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-                    dialog.setTitle("Info...");
-                    dialog.setMessage("Disabled alarm cannot be re-scheduled. Add new? ");
-                    dialog.setIcon(android.R.drawable.ic_dialog_info);
-                    dialog.setPositiveButton("Add",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog1, int which) {
-                                    Intent intent = new Intent(context, AddAlarmActivity.class);
-                                    context.startActivity(intent);
-                                }
-                            });
-                    dialog.setNegativeButton("Cancel",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            });
-                    AlertDialog alertDialog = dialog.create();
-                    alertDialog.setCancelable(false);
-                    alertDialog.show();
+                    AlarmHelper alarmHelper = new AlarmHelper(context);
+                    alarmHelper.updateAlarmStatus(alarmArrayList.get(position).getId(), "true");
+                    final String time = holder.timeText.getText().toString();
+                    Calendar calendar = Calendar.getInstance();
+                    int hour, min;
+
+                    if (time.contains("AM")) {
+                        hour = Integer.parseInt(time.substring(0, 2));
+                    } else
+                        hour = Integer.parseInt(time.substring(0, 2)) + 12;
+
+                    min = Integer.parseInt(time.substring(3, 5));
+                    calendar.set(Calendar.HOUR_OF_DAY, hour);
+                    calendar.set(Calendar.MINUTE, min);
+                    startAlarm(Integer.parseInt(alarmArrayList.get(position).getId()), calendar, Integer.parseInt(alarmArrayList.get(position).getMediaCode()));
                 } else {
                     AlarmHelper alarmHelper = new AlarmHelper(context);
-                    alarmHelper.updateAlarmStatus(alarmArrayList.get(position).getId());
+                    alarmHelper.updateAlarmStatus(alarmArrayList.get(position).getId(), "false");
                     cancelAlarm(Integer.parseInt(alarmArrayList.get(position).getId()));
                     Toast.makeText(context, "Alarm Cancelled", Toast.LENGTH_SHORT).show();
                 }
@@ -118,6 +113,19 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
                 return true;
             }
         });
+    }
+
+    private void startAlarm(int reqCode, Calendar setCalendar, int mediaCode) {
+
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.putExtra("mediaCode", mediaCode);
+        if (setCalendar.before(Calendar.getInstance())) {
+            setCalendar.add(Calendar.DATE, 1);
+        }
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, reqCode, intent, 0);
+        manager.setExact(AlarmManager.RTC_WAKEUP, setCalendar.getTimeInMillis(), pendingIntent);
+        Toast.makeText(context, "Alarm Scheduled", Toast.LENGTH_SHORT).show();
     }
 
     private void cancelAlarm(int id) {

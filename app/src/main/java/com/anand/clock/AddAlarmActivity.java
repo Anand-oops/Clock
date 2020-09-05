@@ -33,11 +33,8 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
     AlarmHelper alarmHelper;
     Calendar setCalendar = Calendar.getInstance();
     private TextView timeText;
-    //private boolean sun, mon, tue, web, thu, fri, sat;
-    private Button setAlarm;
-    private RadioGroup radioGroup;
     private MediaPlayer mediaPlayer;
-    private int reqCode, mediaCode = 0;
+    private int mediaCode = 0;
     private String time;
 
     @Override
@@ -46,9 +43,10 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
         setContentView(R.layout.activity_add_alarm);
 
         alarmHelper = new AlarmHelper(this);
-        setAlarm = findViewById(R.id.setAlarmButton);
+        //private boolean sun, mon, tue, web, thu, fri, sat;
+        Button setAlarm = findViewById(R.id.setAlarmButton);
         timeText = findViewById(R.id.alarmTimeTV);
-        radioGroup = findViewById(R.id.radioGroup);
+        RadioGroup radioGroup = findViewById(R.id.radioGroup);
         timeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,7 +93,7 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
                     alertDialog.setCancelable(false);
                     alertDialog.show();
                 } else {
-                    alarmHelper.addAlarm(time, "true");
+                    alarmHelper.addAlarm(time, "true", String.valueOf(mediaCode));
                     startAlarm();
                     finish();
                 }
@@ -107,63 +105,48 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 switch (radioGroup.findViewById(i).getId()) {
                     case R.id.radio1:
-                        if (mediaPlayer == null) {
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.cocka_doodle);
-                            mediaPlayer.start();
-                        } else {
+                        if (mediaPlayer != null) {
                             mediaPlayer.stop();
                             mediaPlayer.release();
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.cocka_doodle);
-                            mediaPlayer.start();
                         }
+                        mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.cocka_doodle);
+                        mediaPlayer.start();
                         mediaCode = 1;
                         break;
                     case R.id.radio2:
-                        if (mediaPlayer == null) {
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.normal_alarm);
-                            mediaPlayer.start();
-                        } else {
+                        if (mediaPlayer != null) {
                             mediaPlayer.stop();
                             mediaPlayer.release();
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.normal_alarm);
-                            mediaPlayer.start();
                         }
+                        mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.normal_alarm);
+                        mediaPlayer.start();
                         mediaCode = 2;
                         break;
                     case R.id.radio3:
-                        if (mediaPlayer == null) {
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.carol_alarm);
-                            mediaPlayer.start();
-                        } else {
+                        if (mediaPlayer != null) {
                             mediaPlayer.stop();
                             mediaPlayer.release();
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.carol_alarm);
-                            mediaPlayer.start();
                         }
+                        mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.carol_alarm);
+                        mediaPlayer.start();
                         mediaCode = 3;
                         break;
                     case R.id.radio4:
-                        if (mediaPlayer == null) {
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.siren_alarm);
-                            mediaPlayer.start();
-                        } else {
+                        if (mediaPlayer != null) {
                             mediaPlayer.stop();
                             mediaPlayer.release();
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.siren_alarm);
-                            mediaPlayer.start();
                         }
+                        mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.siren_alarm);
+                        mediaPlayer.start();
                         mediaCode = 4;
                         break;
                     case R.id.radio5:
-                        if (mediaPlayer == null) {
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.funny_alarm);
-                            mediaPlayer.start();
-                        } else {
+                        if (mediaPlayer != null) {
                             mediaPlayer.stop();
                             mediaPlayer.release();
-                            mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.funny_alarm);
-                            mediaPlayer.start();
                         }
+                        mediaPlayer = MediaPlayer.create(AddAlarmActivity.this, R.raw.funny_alarm);
+                        mediaPlayer.start();
                         mediaCode = 5;
                         break;
                 }
@@ -172,7 +155,7 @@ public class AddAlarmActivity extends AppCompatActivity implements TimePickerDia
     }
 
     private void startAlarm() {
-        reqCode = alarmHelper.getCount();
+        int reqCode = alarmHelper.getCount();
         Log.d(TAG, "startAlarm: reqCode" + reqCode);
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
