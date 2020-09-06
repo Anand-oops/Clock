@@ -70,11 +70,11 @@ public class AlarmHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    /*public void updateAlarmTime(String id, String time) {
+    public void updateAlarmTime(String id, String time) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(ALARM_TIME, time);
         db.update(TABLE_NAME, values, ALARM_ID + " = ?", new String[]{String.valueOf(id)});
         db.close();
-    }*/
+    }
 }
